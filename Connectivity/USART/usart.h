@@ -5,40 +5,34 @@
 #include <string.h>
 #include "stdio.h"	
 #include "sys.h" 
-#include "w25n.h"
-#include "bmi055.h"
 
-#define USART_n		USART1  //¶¨ÒåÊ¹ÓÃprintfº¯ÊıµÄ´®¿Ú£¬ÆäËû´®¿ÚÒªÊ¹ÓÃUSART_printf×¨ÓÃº¯Êı·¢ËÍ
+#define USART_n		USART1  //å®šä¹‰ä½¿ç”¨printfå‡½æ•°çš„ä¸²å£ï¼Œå…¶ä»–ä¸²å£è¦ä½¿ç”¨USART_printfä¸“ç”¨å‡½æ•°å‘é€
 
-#define USART1_REC_LEN  			20  	//¶¨ÒåUSART1×î´ó½ÓÊÕ×Ö½ÚÊı
-#define USART2_REC_LEN  			20  	//¶¨ÒåUSART2×î´ó½ÓÊÕ×Ö½ÚÊı
-#define USART3_REC_LEN  			20  	//¶¨ÒåUSART3×î´ó½ÓÊÕ×Ö½ÚÊı
+#define USART1_REC_LEN  			20  	//å®šä¹‰USART1æœ€å¤§æ¥æ”¶å­—èŠ‚æ•°
+#define USART2_REC_LEN  			20  	//å®šä¹‰USART2æœ€å¤§æ¥æ”¶å­—èŠ‚æ•°
+#define USART3_REC_LEN  			20  	//å®šä¹‰USART3æœ€å¤§æ¥æ”¶å­—èŠ‚æ•°
 
-//²»Ê¹ÓÃÄ³¸ö´®¿ÚÊ±Òª½ûÖ¹´Ë´®¿Ú£¬ÒÔ¼õÉÙ±àÒëÁ¿
-#define EN_USART1 			1		//Ê¹ÄÜ£¨1£©/½ûÖ¹£¨0£©´®¿Ú1
-#define EN_USART2 			1		//Ê¹ÄÜ£¨1£©/½ûÖ¹£¨0£©´®¿Ú2
-#define EN_USART3 			1		//Ê¹ÄÜ£¨1£©/½ûÖ¹£¨0£©´®¿Ú3
+//ä¸ä½¿ç”¨æŸä¸ªä¸²å£æ—¶è¦ç¦æ­¢æ­¤ä¸²å£ï¼Œä»¥å‡å°‘ç¼–è¯‘é‡
+#define EN_USART1 			1		//ä½¿èƒ½ï¼ˆ1ï¼‰/ç¦æ­¢ï¼ˆ0ï¼‰ä¸²å£1
+#define EN_USART2 			1		//ä½¿èƒ½ï¼ˆ1ï¼‰/ç¦æ­¢ï¼ˆ0ï¼‰ä¸²å£2
+#define EN_USART3 			1		//ä½¿èƒ½ï¼ˆ1ï¼‰/ç¦æ­¢ï¼ˆ0ï¼‰ä¸²å£3
 
-typedef enum{Command_Receice = 1,Transfer = 2}USART_MODE_Selection;
 	  	
-extern u8  USART1_RX_BUF[USART1_REC_LEN]; //½ÓÊÕ»º³å,×î´óUSART_REC_LEN¸ö×Ö½Ú.Ä©×Ö½ÚÎª»»ĞĞ·û 
-extern u8  USART2_RX_BUF[USART2_REC_LEN]; //½ÓÊÕ»º³å,×î´óUSART_REC_LEN¸ö×Ö½Ú.Ä©×Ö½ÚÎª»»ĞĞ·û
-extern u8  USART3_RX_BUF[USART3_REC_LEN]; //½ÓÊÕ»º³å,×î´óUSART_REC_LEN¸ö×Ö½Ú.Ä©×Ö½ÚÎª»»ĞĞ·û
+extern uint8_t  USART1_RX_BUF[USART1_REC_LEN]; //æ¥æ”¶ç¼“å†²,æœ€å¤§USART_REC_LENä¸ªå­—èŠ‚.æœ«å­—èŠ‚ä¸ºæ¢è¡Œç¬¦ 
+extern uint8_t  USART2_RX_BUF[USART2_REC_LEN]; //æ¥æ”¶ç¼“å†²,æœ€å¤§USART_REC_LENä¸ªå­—èŠ‚.æœ«å­—èŠ‚ä¸ºæ¢è¡Œç¬¦
+extern uint8_t  USART3_RX_BUF[USART3_REC_LEN]; //æ¥æ”¶ç¼“å†²,æœ€å¤§USART_REC_LENä¸ªå­—èŠ‚.æœ«å­—èŠ‚ä¸ºæ¢è¡Œç¬¦
  
-extern u16 USART1_RX_STA;         		//½ÓÊÕ×´Ì¬±ê¼Ç	
-extern u16 USART2_RX_STA;         		//½ÓÊÕ×´Ì¬±ê¼Ç	
-extern u16 USART3_RX_STA;         		//½ÓÊÕ×´Ì¬±ê¼Ç	
+extern u16 USART1_RX_STA;         		//æ¥æ”¶çŠ¶æ€æ ‡è®°	
+extern u16 USART2_RX_STA;         		//æ¥æ”¶çŠ¶æ€æ ‡è®°	
+extern u16 USART3_RX_STA;         		//æ¥æ”¶çŠ¶æ€æ ‡è®°	
 
-extern USART_MODE_Selection USART_MODE;
-
-//º¯ÊıÉùÃ÷
-void USART1_Configuration(u32 bound,FunctionalState ITStatus);//´®¿Ú1³õÊ¼»¯²¢Æô¶¯
-void USART2_Configuration(u32 bound,FunctionalState ITStatus);//´®¿Ú2³õÊ¼»¯²¢Æô¶¯
-void USART3_Configuration(u32 bound,FunctionalState ITStatus);//´®¿Ú3³õÊ¼»¯²¢Æô¶¯
-void USART1_printf(char* fmt,...); //´®¿Ú1µÄ×¨ÓÃprintfº¯Êı
-void USART2_printf(char* fmt,...); //´®¿Ú2µÄ×¨ÓÃprintfº¯Êı
-void USART3_printf(char* fmt,...); //´®¿Ú3µÄ×¨ÓÃprintfº¯Êı
+//å‡½æ•°å£°æ˜
+void USART1_Configuration(uint32_t bound,FunctionalState ITStatus);//ä¸²å£1åˆå§‹åŒ–å¹¶å¯åŠ¨
+void USART2_Configuration(uint32_t bound,FunctionalState ITStatus);//ä¸²å£2åˆå§‹åŒ–å¹¶å¯åŠ¨
+void USART3_Configuration(uint32_t bound,FunctionalState ITStatus);//ä¸²å£3åˆå§‹åŒ–å¹¶å¯åŠ¨
+void USART1_printf(char* fmt,...); //ä¸²å£1çš„ä¸“ç”¨printfå‡½æ•°
+void USART2_printf(char* fmt,...); //ä¸²å£2çš„ä¸“ç”¨printfå‡½æ•°
+void USART3_printf(char* fmt,...); //ä¸²å£3çš„ä¸“ç”¨printfå‡½æ•°
 void Command_Execute(USART_TypeDef* USARTx);
 #endif
-
 

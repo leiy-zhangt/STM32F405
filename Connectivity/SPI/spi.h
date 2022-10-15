@@ -23,8 +23,8 @@
 #define SPI2_Pinsourse_MISO GPIO_PinSource14
 #define SPI2_Pinsourse_MOSI GPIO_PinSource15
 
-void SPI1_Configuration(void);			//初始化SPI1口 
-void SPI2_Configuration(void);          //初始化SPI2口 
+void SPI1_Configuration(void);			//初始化SPI1 
+void SPI2_Configuration(void);          //初始化SPI2 
 u16 SPI_ReadWriteByte(SPI_TypeDef* SPI, u16 Data);//SPI1总线读写一个字节
 		 
 #endif
